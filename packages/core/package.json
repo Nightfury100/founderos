@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "lint": "echo '[core] eslint wiring lands in M2; typecheck + tests are the enforced gate for now'",
+    "lint": "eslint . --ext .ts --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "clean": "rm -rf node_modules dist"
@@ -22,6 +22,10 @@
   "devDependencies": {
     "@founderos/config": "workspace:*",
     "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   }

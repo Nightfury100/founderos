@@ -16,30 +16,36 @@ for current status.
 
 ```
 apps/
-  web/          Next.js dashboard, kanban, queue, approvals
-  api/          tRPC routers, auth, domain services   (M2+)
-  worker/       BullMQ agent workers                  (M4+)
+  web/          Next.js — auth, dashboard, knowledge hub, kanban (M3+)
+  api/          tRPC routers                            (M4+, see spec §5)
+  worker/       BullMQ agent workers                     (M4+)
 packages/
-  db/           Prisma schema, migrations
+  db/           Prisma schema, migrations, seed script
   core/         Shared types, env validation, AiDecision envelope
-  agents/       AI agent implementations               (M4+)
-  integrations/ Gmail, Calendar, Claude, etc. adapters  (M4+)
-  ui/           Shared component library                (M2+)
+  agents/       AI agent implementations                 (M4+)
+  integrations/ Gmail, Calendar, Claude, etc. adapters    (M4+)
+  ui/           Shared component library — extracted once a second
+                 frontend needs it; UI primitives live in apps/web for now
   config/       Shared tsconfig/eslint presets
 docs/           Architecture, spec, milestones
 ```
 
 ## Getting started (local dev)
 
-Requirements: Node 20+, pnpm 9+, Docker (for Postgres + Redis).
+Requirements: Node 20+, pnpm 9+, Postgres 16, Redis 7 (or `docker compose up -d`
+if Docker is available).
 
 ```bash
 cp .env.example .env        # fill in secrets
 docker compose up -d        # Postgres + Redis
 pnpm install
 pnpm --filter @founderos/db exec prisma migrate dev
+pnpm --filter @founderos/db exec prisma db seed   # sample workspace/users/data
 pnpm dev
 ```
+
+The seed script prints founder and VA login credentials — change both
+passwords before using this outside local development.
 
 ## Scripts (root)
 
@@ -51,5 +57,5 @@ pnpm dev
 
 ## Status
 
-Milestone 1 (Foundation & Data Model) in progress. See
-[`docs/MILESTONES.md`](docs/MILESTONES.md).
+Milestone 2 (Auth, RBAC, Dashboard & Knowledge Hub) shipped. See
+[`docs/MILESTONES.md`](docs/MILESTONES.md) for what's next.

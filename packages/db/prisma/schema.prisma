@@ -43,6 +43,8 @@ model Workspace {
   notifications Notification[]
   logs          Log[]
   settings      Settings?
+  jobSearchProfile      JobSearchProfile?
+  investorSearchProfile InvestorSearchProfile?
 }
 
 enum Role {
@@ -623,6 +625,46 @@ model Template {
   updatedAt   DateTime  @updatedAt
 
   @@index([workspaceId, agentKey])
+}
+
+// The founder's job-search targeting profile — what the Jobs Agent scores
+// discovered roles against. One per workspace; editable from the Knowledge
+// Hub. Structured fields drive filtering; `notes` carries anything that
+// doesn't fit a field (e.g. "open to fractional/advisory roles too").
+model JobSearchProfile {
+  id                String    @id @default(cuid())
+  workspaceId       String    @unique
+  workspace         Workspace @relation(fields: [workspaceId], references: [id])
+  roleTitles        String[] // e.g. ["Head of Product", "VP Product", "Chief of Staff"]
+  seniority         String[] // e.g. ["Director", "VP", "C-Suite"]
+  industries        String[] // e.g. ["AI", "Travel Tech", "Fintech"]
+  locations         String[] // e.g. ["Remote", "Dubai", "London"]
+  remoteOk          Boolean   @default(true)
+  relocationOk      Boolean   @default(false)
+  excludedCompanies String[]
+  salaryMinCents    Int?
+  salaryMaxCents    Int?
+  notes             String?   @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+// The founder's investor-targeting profile — what the Investor Agent scores
+// discovered investors against. One per workspace; editable from the
+// Knowledge Hub.
+model InvestorSearchProfile {
+  id                 String         @id @default(cuid())
+  workspaceId        String         @unique
+  workspace          Workspace      @relation(fields: [workspaceId], references: [id])
+  investorTypes      InvestorType[]
+  stageFocus         String[] // e.g. ["Pre-seed", "Seed", "Series A"]
+  sectorFocus        String[] // e.g. ["AI", "Travel Tech", "B2B SaaS"]
+  geographies        String[] // e.g. ["MENA", "US", "Global"]
+  checkSizeMinCents  Int?
+  checkSizeMaxCents  Int?
+  notes              String?        @db.Text
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 }
 
 // ---------------------------------------------------------------------------

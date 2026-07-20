@@ -8,18 +8,34 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "echo '[web] no tests yet — lands with the dashboard in M2'",
+    "test": "echo '[web] Playwright e2e tests land once the opportunity lifecycle UI ships in M3'",
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
     "@founderos/core": "workspace:*",
     "@founderos/db": "workspace:*",
+    "@next-auth/prisma-adapter": "^1.0.7",
+    "@radix-ui/react-avatar": "^1.1.2",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-select": "^2.1.4",
+    "@radix-ui/react-separator": "^1.1.1",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.2",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
     "next": "14.2.18",
+    "next-auth": "^4.24.11",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@founderos/config": "workspace:*",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
@@ -28,6 +44,8 @@
     "eslint-config-next": "14.2.18",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

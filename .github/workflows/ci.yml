@@ -60,6 +60,9 @@ jobs:
       - name: Prisma migrate deploy
         run: pnpm --filter @founderos/db exec prisma migrate deploy
 
+      - name: Seed database
+        run: pnpm --filter @founderos/db exec prisma db seed
+
       - name: Lint
         run: pnpm lint
 

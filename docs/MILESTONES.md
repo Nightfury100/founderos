@@ -24,16 +24,41 @@ work, risks, and the recommended next milestone.
 - Exit criteria: `pnpm install && pnpm build` green in CI on a clean
   checkout; schema migrates cleanly against a fresh database.
 
-## M2 — Auth, RBAC & Dashboard Shell
-- NextAuth (Auth.js) credentials auth, `FOUNDER`/`VA`/`ADMIN` roles.
-- Workspace-scoped session + tRPC middleware enforcing role/workspace
-  checks server-side.
-- Dashboard shell (`apps/web`) with the widget layout from the product
-  brief, wired to real (if mostly empty) data via tRPC — no mock data
+## M2 — Auth, RBAC, Dashboard & Knowledge Hub — **shipped**
+- NextAuth (Auth.js) credentials auth, `FOUNDER`/`VA`/`ADMIN` roles, JWT
+  session carrying `role` + `workspaceId`, route middleware protecting all
+  authenticated pages.
+- `lib/rbac.ts`: role checks enforced at the Server Action layer (not just
+  hidden in the UI) — editing the knowledge base requires `FOUNDER`/`ADMIN`.
+- Dashboard (`apps/web`) with the full widget layout from the product
+  brief — KPI row, VA queue, activity feed, recent AI decisions, sales
+  pipeline, grant deadlines — queried directly from Postgres via
+  workspace-scoped Prisma calls in Server Components. No mock data
   hardcoded in components.
-- Seed script: one workspace, one founder user, one VA user.
-- Exit criteria: can log in as founder or VA locally, see role-appropriate
-  views, dashboard loads real data from Postgres.
+- **Knowledge Hub** (pulled forward from M5 at the founder's request):
+  versioned `Document` CRUD (bio, CVs, elevator pitch, exec summary, ...)
+  where every save creates a new version rather than overwriting, plus
+  editable **Job Search Profile** and **Investor Targeting Profile** forms
+  — the structured criteria the Jobs/Investor agents will filter and score
+  against once M4/M5 land.
+- Premium UI system: Apple/Notion-inspired design tokens (validated via the
+  dataviz skill's palette + contrast checks), shadcn-style primitives,
+  sidebar + topbar app shell, stub pages for not-yet-built nav destinations
+  so navigation never 404s.
+- Seed script: one workspace, one founder user, one VA user, sample
+  documents/profiles/opportunities/tasks/AI decisions so the UI is real
+  data, not an empty shell, from the first login.
+- **Deviation from TECHNICAL_SPEC.md §5**: mutations in `apps/web` use
+  Next.js Server Actions colocated with each feature (e.g.
+  `knowledge-hub/actions.ts`), not tRPC. tRPC remains the plan for M4+
+  once `apps/worker` needs to call the same domain logic as `apps/web` —
+  building the tRPC layer before a second consumer exists would be
+  speculative. Server Actions call the same validated, audit-logged
+  service functions tRPC procedures will wrap later, so this isn't a
+  rewrite, just a deferred formalization.
+- Exit criteria met: can log in as founder or VA, see role-appropriate
+  edit permissions, dashboard loads real data from Postgres, knowledge
+  base and targeting profiles are editable and persisted.
 
 ## M3 — Opportunity Lifecycle & Kanban
 - `opportunities` tRPC router (CRUD + stage transitions).
@@ -56,8 +81,9 @@ work, risks, and the recommended next milestone.
 
 ## M5 — Investor & Grants Agents
 - Same pattern as M4, applied to Investor Agent and Grants Agent.
-- Knowledge base (`Document`, versioned) wired in as the source for bios,
-  pitches, deck info that agents reference when drafting.
+- Knowledge base and targeting profiles (`Document`, `JobSearchProfile`,
+  `InvestorSearchProfile` — shipped in M2) wired in as the source agents
+  read from when scoring and drafting.
 - Exit criteria: both agents pass the same test bar as M4; knowledge base
   versioning enforced (only one current version per kind/slug).
 

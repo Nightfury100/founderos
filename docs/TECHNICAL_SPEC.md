@@ -91,6 +91,14 @@ model, API surface, and shared contracts. Updated as each milestone lands.
   `(workspaceId, kind, slug)` — enforced at the service layer so agents
   always pull the latest approved version.
 - `Template` — reusable prompt/message templates per agent.
+- `JobSearchProfile` — one per workspace: target role titles, seniority,
+  industries, locations, remote/relocation flags, excluded companies,
+  salary range, free-text notes. What the Jobs Agent filters and scores
+  discovered roles against; editable from the Knowledge Hub.
+- `InvestorSearchProfile` — one per workspace: target investor types
+  (`VC`/`ANGEL`/`FAMILY_OFFICE`/`STRATEGIC`/`CVC`), stage focus, sector
+  focus, geographies, check size range, free-text notes. What the
+  Investor Agent filters and scores discovered investors against.
 
 **Platform**
 - `Project` — optional grouping (e.g. a fundraising round, a hiring push).
@@ -144,6 +152,18 @@ the helper).
 
 ## 5. API surface (tRPC routers, `apps/api`)
 
+`apps/api`/tRPC exists to give `apps/worker` (and any future consumer, e.g.
+a mobile client) the same typed, validated domain operations `apps/web`
+uses — it's warranted once a second consumer needs these operations, which
+starts at M4 when the worker calls into domain services. Until then,
+`apps/web`'s own mutations are Next.js Server Actions colocated per
+feature (e.g. `app/(app)/knowledge-hub/actions.ts`), each doing the same
+auth check → role check → validate → write → audit-log sequence a tRPC
+procedure would. Building the tRPC layer before a second consumer exists
+would be speculative; the router list below is the target shape once it's
+warranted, not aspirational-only — the underlying service functions it
+wraps already exist.
+
 - `auth` — session, role checks.
 - `opportunities` — list/filter/get/updateStage, per type.
 - `tasks` — VA queue: list (prioritized), claim, updateStatus, complete.
@@ -164,19 +184,25 @@ through a role-check + workspace-scope middleware before touching Prisma.
 
 ## 6. Frontend structure (`apps/web`)
 
-- `/dashboard` — the CEO dashboard (widgets listed in the product brief:
-  today's tasks, opportunities found, investor outreach, jobs applied,
-  applications pending, follow-ups due, meetings scheduled, email summary,
-  sales pipeline, grant deadlines, KPIs, activity feed, recent AI
-  decisions).
-- `/queue` — VA's prioritized task queue (table + kanban toggle).
-- `/opportunities/[type]` — kanban board per opportunity type.
+Status noted per route — `live` shipped in M2, `stub` renders a real page
+with real nav but no feature yet (so nothing 404s), unmarked is planned.
+
+- `/login` — credentials sign-in. **live**
+- `/dashboard` — the CEO dashboard: KPI row, today's queue, activity feed,
+  recent AI decisions, sales pipeline, grant deadlines — queried live from
+  Postgres. **live**
+- `/knowledge-hub` — Documents tab (versioned bio/CV/pitch/etc, RBAC-gated
+  editing), Job targeting tab, Investor targeting tab. **live**
+- `/queue` — VA's prioritized task queue (table + kanban toggle). **stub**,
+  lands in M3 (today's top items already surface on `/dashboard`)
+- `/opportunities/[type]` — kanban board per opportunity type. **stub**,
+  lands in M3
 - `/opportunities/[type]/[id]` — detail view: full AiDecision history,
-  drafts, approve/reject actions.
-- `/inbox` — email digest and triage.
-- `/content` — marketing content calendar.
-- `/knowledge-base` — documents, versioned.
-- `/settings` — workspace, integrations, approval policies.
+  drafts, approve/reject actions. lands in M3
+- `/inbox` — email digest and triage. **stub**, lands in M7
+- `/content` — marketing content calendar. **stub**, lands in M8
+- `/settings` — workspace, integrations, approval policies. **stub**,
+  lands incrementally as M3+ milestones need workspace-level config.
 
 ## 7. Environment variables (`.env.example` is authoritative)
 
