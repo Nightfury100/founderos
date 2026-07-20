@@ -1,0 +1,31 @@
+{
+  "name": "@founderos/db",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "prisma generate",
+    "lint": "echo 'no lint for db package'",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no tests yet'",
+    "clean": "rm -rf node_modules generated",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  },
+  "devDependencies": {
+    "@founderos/config": "workspace:*",
+    "@types/node": "^22.10.2",
+    "prisma": "^5.22.0",
+    "typescript": "^5.7.2"
+  }
+}

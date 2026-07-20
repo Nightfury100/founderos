@@ -1,0 +1,694 @@
+// FounderOS — Prisma schema.
+// Source of truth for the data model described in docs/TECHNICAL_SPEC.md §2.
+// Every domain table is workspace-scoped to support multi-tenant SaaS later,
+// even though V1 provisions exactly one workspace.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity & tenancy
+// ---------------------------------------------------------------------------
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  opportunities Opportunity[]
+  aiDecisions   AiDecision[]
+  tasks         Task[]
+  followUps     FollowUp[]
+  companies     Company[]
+  contacts      Contact[]
+  recruiters    Recruiter[]
+  accelerators  Accelerator[]
+  businesses    Business[]
+  meetings      Meeting[]
+  emails        Email[]
+  messages      Message[]
+  content       Content[]
+  documents     Document[]
+  templates     Template[]
+  projects      Project[]
+  notifications Notification[]
+  logs          Log[]
+  settings      Settings?
+}
+
+enum Role {
+  FOUNDER
+  VA
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  email        String   @unique
+  name         String?
+  image        String?
+  passwordHash String?
+  role         Role     @default(VA)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts          Account[]
+  sessions          Session[]
+  assignedTasks     Task[]           @relation("TaskAssignedTo")
+  approvedMessages  Message[]        @relation("MessageApprovedBy")
+  approvedContent   Content[]        @relation("ContentApprovedBy")
+  authoredDocuments Document[]       @relation("DocumentCreatedBy")
+  notifications     Notification[]
+  meetingAttendance MeetingAttendee[]
+
+  @@index([workspaceId])
+}
+
+// Standard NextAuth (Auth.js) Prisma adapter tables.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Universal opportunity lifecycle
+// ---------------------------------------------------------------------------
+
+enum OpportunityType {
+  JOB
+  INVESTOR
+  GRANT
+  SALES_LEAD
+  CONTENT
+  EMAIL_ACTION
+}
+
+// Discover -> Research -> Qualify -> Recommend -> Draft -> Queue -> Execute -> Follow-up -> Complete
+enum OpportunityStage {
+  DISCOVERED
+  RESEARCHING
+  QUALIFYING
+  RECOMMENDED
+  DRAFTING
+  QUEUED
+  IN_PROGRESS
+  FOLLOW_UP
+  COMPLETED
+  REJECTED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Opportunity {
+  id           String           @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id])
+  type         OpportunityType
+  stage        OpportunityStage @default(DISCOVERED)
+  title        String
+  summary      String?          @db.Text
+  sourceUrl    String?
+  priority     Int              @default(0)
+  discoveredAt DateTime         @default(now())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  aiDecisions AiDecision[]
+  tasks       Task[]
+  followUps   FollowUp[]
+  meetings    Meeting[]
+  messages    Message[]
+
+  jobDetail      JobDetail?
+  investorDetail InvestorDetail?
+  grantDetail    GrantDetail?
+  lead           Lead?
+  content        Content?
+
+  @@index([workspaceId, type, stage])
+  @@index([workspaceId, priority])
+}
+
+// Every AI-authored action, anywhere in the system. See docs/TECHNICAL_SPEC.md §4 —
+// this is the non-negotiable "no opaque output" contract.
+model AiDecision {
+  id                     String      @id @default(cuid())
+  workspaceId            String
+  workspace              Workspace   @relation(fields: [workspaceId], references: [id])
+  agentKey               String
+  confidence             Float
+  reasoning              String      @db.Text
+  sources                Json // string[]
+  recommendedNextAction  String
+  draftContent           String?     @db.Text
+  riskLevel              RiskLevel
+  opportunityId          String?
+  opportunity            Opportunity? @relation(fields: [opportunityId], references: [id])
+  emailId                String?
+  email                  Email?      @relation(fields: [emailId], references: [id])
+  createdAt              DateTime    @default(now())
+
+  @@index([workspaceId, agentKey])
+  @@index([opportunityId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+// The VA's prioritized queue.
+model Task {
+  id               String      @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace   @relation(fields: [workspaceId], references: [id])
+  title            String
+  priority         Int         @default(0)
+  estimatedMinutes Int?
+  status           TaskStatus  @default(TODO)
+  requiredAssets   Json? // links to drafts/documents
+  nextAction       String?
+  assignedToId     String?
+  assignedTo       User?       @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+  opportunityId    String?
+  opportunity      Opportunity? @relation(fields: [opportunityId], references: [id])
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  completedAt      DateTime?
+
+  @@index([workspaceId, status, priority])
+  @@index([assignedToId, status])
+}
+
+enum FollowUpStatus {
+  PENDING
+  DONE
+  CANCELLED
+}
+
+model FollowUp {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  opportunityId String?
+  opportunity   Opportunity?    @relation(fields: [opportunityId], references: [id])
+  contactId     String?
+  contact       Contact?        @relation(fields: [contactId], references: [id])
+  dueAt         DateTime
+  status        FollowUpStatus  @default(PENDING)
+  note          String?         @db.Text
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([workspaceId, dueAt, status])
+}
+
+// ---------------------------------------------------------------------------
+// People & organizations
+// ---------------------------------------------------------------------------
+
+model Company {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  domain      String?
+  industry    String?
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  contacts      Contact[]
+  opportunities Opportunity[]
+  leads         Lead[]
+
+  @@index([workspaceId])
+}
+
+model Contact {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id])
+  name        String
+  email       String?
+  phone       String?
+  title       String?
+  linkedinUrl String?
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  opportunities     Opportunity[]
+  followUps         FollowUp[]
+  messages          Message[]
+  recruiter         Recruiter?
+  meetingAttendance MeetingAttendee[]
+
+  @@index([workspaceId])
+}
+
+// ---------------------------------------------------------------------------
+// Type-specific opportunity details (1:1 with Opportunity, keyed by opportunityId)
+// ---------------------------------------------------------------------------
+
+model Recruiter {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  contactId   String    @unique
+  contact     Contact   @relation(fields: [contactId], references: [id])
+  agencyName  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  jobDetails JobDetail[]
+
+  @@index([workspaceId])
+}
+
+model JobDetail {
+  id            String      @id @default(cuid())
+  opportunityId String      @unique
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  roleTitle     String
+  level         String?
+  remote        Boolean     @default(false)
+  relocation    Boolean     @default(false)
+  jobBoardUrl   String?
+  recruiterId   String?
+  recruiter     Recruiter?  @relation(fields: [recruiterId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum InvestorType {
+  VC
+  ANGEL
+  FAMILY_OFFICE
+  STRATEGIC
+  CVC
+}
+
+model InvestorDetail {
+  id                String       @id @default(cuid())
+  opportunityId     String       @unique
+  opportunity       Opportunity  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  investorType      InvestorType
+  thesisSummary     String?      @db.Text
+  portfolioFitNotes String?      @db.Text
+  checkSizeMinCents  Int?
+  checkSizeMaxCents  Int?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model Accelerator {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  website     String?
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  grantDetails GrantDetail[]
+
+  @@index([workspaceId])
+}
+
+enum GrantApplicationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  AWARDED
+  REJECTED
+}
+
+model GrantDetail {
+  id                String                  @id @default(cuid())
+  opportunityId     String                  @unique
+  opportunity       Opportunity             @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  program           String
+  eligibilityNotes  String?                 @db.Text
+  deadline          DateTime?
+  amountCents       Int?
+  applicationStatus GrantApplicationStatus  @default(NOT_STARTED)
+  acceleratorId     String?
+  accelerator       Accelerator?            @relation(fields: [acceleratorId], references: [id])
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+}
+
+// A business unit the Sales Agent sells for (ViralX, Event Intelligence, ...).
+// Modeled as data, not an enum, so new businesses don't require a migration.
+model Business {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  slug        String
+  createdAt   DateTime  @default(now())
+
+  leads Lead[]
+
+  @@unique([workspaceId, slug])
+}
+
+model Lead {
+  id             String      @id @default(cuid())
+  opportunityId  String      @unique
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  businessId     String
+  business       Business    @relation(fields: [businessId], references: [id])
+  companyId      String?
+  company        Company?    @relation(fields: [companyId], references: [id])
+  dealValueCents Int?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Meetings
+// ---------------------------------------------------------------------------
+
+model Meeting {
+  id              String      @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id])
+  opportunityId   String?
+  opportunity     Opportunity? @relation(fields: [opportunityId], references: [id])
+  title           String
+  scheduledAt     DateTime
+  durationMinutes Int?
+  notes           String?     @db.Text
+  calendarEventId String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  attendees MeetingAttendee[]
+
+  @@index([workspaceId, scheduledAt])
+}
+
+model MeetingAttendee {
+  id            String   @id @default(cuid())
+  meetingId     String
+  meeting       Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  contactId     String?
+  contact       Contact? @relation(fields: [contactId], references: [id])
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
+  externalName  String?
+  externalEmail String?
+
+  @@index([meetingId])
+}
+
+// ---------------------------------------------------------------------------
+// Communication
+// ---------------------------------------------------------------------------
+
+enum EmailCategory {
+  OPPORTUNITY
+  URGENT
+  FYI
+  LOW_VALUE
+  SPAM
+  OTHER
+}
+
+model Email {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id])
+  gmailMessageId  String         @unique
+  threadId        String?
+  fromAddress     String
+  subject         String?
+  snippet         String?
+  category        EmailCategory?
+  isUrgent        Boolean        @default(false)
+  suggestedAction String?
+  receivedAt      DateTime
+  createdAt       DateTime       @default(now())
+
+  aiDecisions AiDecision[]
+  messages    Message[]
+
+  @@index([workspaceId, category])
+  @@index([workspaceId, receivedAt])
+}
+
+enum MessageChannel {
+  EMAIL
+  LINKEDIN
+  OTHER
+}
+
+enum MessageStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  SENT
+  FAILED
+}
+
+// Outbound message drafted by an agent. Never transitions to SENT without
+// approvedById set — enforced at the service layer per docs/ARCHITECTURE.md §8.
+model Message {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+  opportunityId String?
+  opportunity   Opportunity?   @relation(fields: [opportunityId], references: [id])
+  emailId       String?
+  email         Email?         @relation(fields: [emailId], references: [id])
+  contactId     String?
+  contact       Contact?       @relation(fields: [contactId], references: [id])
+  channel       MessageChannel
+  subject       String?
+  body          String         @db.Text
+  status        MessageStatus  @default(DRAFT)
+  approvedById  String?
+  approvedBy    User?          @relation("MessageApprovedBy", fields: [approvedById], references: [id])
+  sentAt        DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([workspaceId, status])
+}
+
+enum ContentPlatform {
+  LINKEDIN
+  INSTAGRAM
+}
+
+enum ContentStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+}
+
+model Content {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  opportunityId String?         @unique
+  opportunity   Opportunity?    @relation(fields: [opportunityId], references: [id])
+  platform      ContentPlatform
+  body          String          @db.Text
+  status        ContentStatus   @default(DRAFT)
+  scheduledFor  DateTime?
+  publishedAt   DateTime?
+  approvedById  String?
+  approvedBy    User?           @relation("ContentApprovedBy", fields: [approvedById], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([workspaceId, status])
+}
+
+// ---------------------------------------------------------------------------
+// Knowledge base
+// ---------------------------------------------------------------------------
+
+enum DocumentKind {
+  BIO
+  COMPANY_DESCRIPTION
+  ELEVATOR_PITCH
+  EXEC_SUMMARY
+  INVESTOR_DECK_INFO
+  PRODUCT_DESCRIPTION
+  CV
+  COVER_LETTER
+  CASE_STUDY
+  SALES_COLLATERAL
+  MARKETING_SOP
+  BRAND_GUIDELINES
+  OTHER
+}
+
+// Versioned reusable knowledge. Only one row per (workspaceId, kind, slug) may
+// have isCurrentVersion=true — enforced at the service layer (packages/core)
+// so every agent that reads a document always gets the latest approved copy.
+model Document {
+  id               String       @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace    @relation(fields: [workspaceId], references: [id])
+  kind             DocumentKind
+  slug             String
+  title            String
+  body             String       @db.Text
+  version          Int          @default(1)
+  isCurrentVersion Boolean      @default(true)
+  createdById      String?
+  createdBy        User?        @relation("DocumentCreatedBy", fields: [createdById], references: [id])
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([workspaceId, kind, slug, isCurrentVersion])
+}
+
+model Template {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  agentKey    String
+  name        String
+  body        String    @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId, agentKey])
+}
+
+// ---------------------------------------------------------------------------
+// Platform
+// ---------------------------------------------------------------------------
+
+model Project {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  opportunities Opportunity[]
+
+  @@index([workspaceId])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  title       String
+  body        String?
+  link        String?
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId, userId, isRead])
+}
+
+enum ActorType {
+  USER
+  AGENT
+  SYSTEM
+}
+
+// Audit trail: every mutating action, human or agent.
+model Log {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  actorType   ActorType
+  actorId     String?
+  action      String
+  entityType  String
+  entityId    String
+  before      Json?
+  after       Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, createdAt])
+}
+
+model Settings {
+  id            String    @id @default(cuid())
+  workspaceId   String    @unique
+  workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  autoPublish   Boolean   @default(false)
+  digestHourUtc Int       @default(13)
+  extra         Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
