@@ -12,6 +12,7 @@
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
+    "@founderos/agents": "workspace:*",
     "@founderos/core": "workspace:*",
     "@founderos/db": "workspace:*",
     "@next-auth/prisma-adapter": "^1.0.7",

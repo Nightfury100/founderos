@@ -87,14 +87,18 @@ export function JobProfileForm({
             label="Minimum salary (USD/yr)"
             name="salaryMin"
             type="number"
-            defaultValue={profile?.salaryMinCents ? String(profile.salaryMinCents / 100) : undefined}
+            defaultValue={
+              profile?.salaryMinCents ? String(Number(profile.salaryMinCents) / 100) : undefined
+            }
             placeholder="180000"
           />
           <Field
             label="Maximum salary (USD/yr)"
             name="salaryMax"
             type="number"
-            defaultValue={profile?.salaryMaxCents ? String(profile.salaryMaxCents / 100) : undefined}
+            defaultValue={
+              profile?.salaryMaxCents ? String(Number(profile.salaryMaxCents) / 100) : undefined
+            }
             placeholder="260000"
           />
         </div>

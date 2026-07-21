@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma, DocumentKind, InvestorType, ActorType, Role } from "@founderos/db";
+import { prisma, DocumentKind, InvestorType, ActorType, Role, Prisma } from "@founderos/db";
 import { requireSession } from "@/lib/session";
 import { assertRole } from "@/lib/rbac";
 
@@ -15,6 +15,14 @@ function slugify(input: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+// Log.after is a Json column; JSON.stringify can't serialize BigInt directly,
+// so audit-log snapshots stringify money fields instead of storing them raw.
+function toAuditJson(data: Record<string, unknown>): Prisma.InputJsonValue {
+  return JSON.parse(
+    JSON.stringify(data, (_key, value) => (typeof value === "bigint" ? value.toString() : value))
+  );
+}
+
 function parseList(value: FormDataEntryValue | null): string[] {
   if (!value || typeof value !== "string") return [];
   return value
@@ -23,11 +31,13 @@ function parseList(value: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
-function parseDollarsToCents(value: FormDataEntryValue | null): number | null {
+// Money is stored as BigInt cents (Postgres INT4 can't hold a $30M check
+// size in cents), so every parsed value must be converted before it hits Prisma.
+function parseDollarsToCents(value: FormDataEntryValue | null): bigint | null {
   if (!value || typeof value !== "string" || value.trim() === "") return null;
   const dollars = Number(value);
   if (Number.isNaN(dollars)) return null;
-  return Math.round(dollars * 100);
+  return BigInt(Math.round(dollars * 100));
 }
 
 export async function saveDocument(formData: FormData): Promise<void> {
@@ -120,7 +130,7 @@ export async function saveJobSearchProfile(formData: FormData): Promise<void> {
         action: "job_search_profile.updated",
         entityType: "JobSearchProfile",
         entityId: workspaceId,
-        after: data,
+        after: toAuditJson(data),
       },
     }),
   ]);
@@ -159,7 +169,7 @@ export async function saveInvestorSearchProfile(formData: FormData): Promise<voi
         action: "investor_search_profile.updated",
         entityType: "InvestorSearchProfile",
         entityId: workspaceId,
-        after: data,
+        after: toAuditJson(data),
       },
     }),
   ]);

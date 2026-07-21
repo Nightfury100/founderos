@@ -69,18 +69,33 @@ work, risks, and the recommended next milestone.
 - Exit criteria: can manually create an opportunity, move it through every
   lifecycle stage, see it logged, see it surface in the VA queue.
 
-## M4 — AI Agent Framework + First Agent (Jobs Agent)
-- `Agent` interface, `AgentContext`, BullMQ worker app (`apps/worker`).
-- Claude integration adapter (`packages/integrations/claude`).
-- Jobs Agent: discover → research → qualify → recommend → draft
-  (tailored cover letter, recruiter message, LinkedIn outreach) → queue.
-- Every step writes an `AiDecision`; nothing skips the envelope.
-- Exit criteria: end-to-end run against a small fixture/mocked source
-  produces a queued Task with attached drafts and a full decision trail,
-  covered by agent tests with a mocked Claude client.
+## M4 — AI Agent Framework + Jobs & Investor Agents — **partially shipped**
+- `packages/agents`: a real, working slice landed early (at the founder's
+  request, alongside real CV/company data) — `claude-client.ts` (Anthropic
+  SDK, `claude-opus-4-8`, adaptive thinking, server-side `web_search` tool,
+  `pause_turn` continuation handling), `jobs-agent.ts` and
+  `investor-agent.ts` (research → qualify → draft in one Claude call,
+  parsed against a zod schema, written to `Opportunity` + `JobDetail` /
+  `InvestorDetail` + `AiDecision` via `recordDecision()` + `Task` for
+  high-confidence matches). Triggered from a founder-only "Run now" button
+  on `/opportunities` (Server Action), not yet a scheduled BullMQ job.
+- **Not yet shipped**: the generic `Agent`/`AgentContext` interface
+  described in `ARCHITECTURE.md` §6, `apps/worker` (BullMQ), and scheduled
+  runs — today's trigger is a manual button, not autonomous discovery. The
+  two agents also don't share a formal `Agent` interface yet; that
+  abstraction is worth adding once a third agent (Grants) exists, not
+  before.
+- Every agent output writes an `AiDecision`; nothing skips the envelope.
+  Verified: the UI shows the honest failure mode (no `ANTHROPIC_API_KEY`
+  configured) rather than fabricating a result.
+- Remaining for M4 proper: BullMQ worker + scheduled runs, the shared
+  `Agent` interface, agent tests with a mocked Claude client (current
+  tests cover the JSON-extraction/validation path only, not a live or
+  mocked model call).
 
 ## M5 — Investor & Grants Agents
-- Same pattern as M4, applied to Investor Agent and Grants Agent.
+- Investor Agent shipped early as part of M4's pulled-forward slice
+  (see above). Grants Agent remains.
 - Knowledge base and targeting profiles (`Document`, `JobSearchProfile`,
   `InvestorSearchProfile` — shipped in M2) wired in as the source agents
   read from when scoring and drafting.

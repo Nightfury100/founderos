@@ -81,7 +81,9 @@ export function InvestorProfileForm({
             name="checkSizeMin"
             type="number"
             defaultValue={
-              profile?.checkSizeMinCents ? String(profile.checkSizeMinCents / 100) : undefined
+              profile?.checkSizeMinCents
+                ? String(Number(profile.checkSizeMinCents) / 100)
+                : undefined
             }
             placeholder="100000"
           />
@@ -90,7 +92,9 @@ export function InvestorProfileForm({
             name="checkSizeMax"
             type="number"
             defaultValue={
-              profile?.checkSizeMaxCents ? String(profile.checkSizeMaxCents / 100) : undefined
+              profile?.checkSizeMaxCents
+                ? String(Number(profile.checkSizeMaxCents) / 100)
+                : undefined
             }
             placeholder="2000000"
           />

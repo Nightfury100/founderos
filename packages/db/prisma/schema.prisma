@@ -358,8 +358,8 @@ model InvestorDetail {
   investorType      InvestorType
   thesisSummary     String?      @db.Text
   portfolioFitNotes String?      @db.Text
-  checkSizeMinCents  Int?
-  checkSizeMaxCents  Int?
+  checkSizeMinCents  BigInt?
+  checkSizeMaxCents  BigInt?
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 }
@@ -394,7 +394,7 @@ model GrantDetail {
   program           String
   eligibilityNotes  String?                 @db.Text
   deadline          DateTime?
-  amountCents       Int?
+  amountCents       BigInt?
   applicationStatus GrantApplicationStatus  @default(NOT_STARTED)
   acceleratorId     String?
   accelerator       Accelerator?            @relation(fields: [acceleratorId], references: [id])
@@ -425,7 +425,7 @@ model Lead {
   business       Business    @relation(fields: [businessId], references: [id])
   companyId      String?
   company        Company?    @relation(fields: [companyId], references: [id])
-  dealValueCents Int?
+  dealValueCents BigInt?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 }
@@ -642,8 +642,8 @@ model JobSearchProfile {
   remoteOk          Boolean   @default(true)
   relocationOk      Boolean   @default(false)
   excludedCompanies String[]
-  salaryMinCents    Int?
-  salaryMaxCents    Int?
+  salaryMinCents    BigInt?
+  salaryMaxCents    BigInt?
   notes             String?   @db.Text
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -660,8 +660,8 @@ model InvestorSearchProfile {
   stageFocus         String[] // e.g. ["Pre-seed", "Seed", "Series A"]
   sectorFocus        String[] // e.g. ["AI", "Travel Tech", "B2B SaaS"]
   geographies        String[] // e.g. ["MENA", "US", "Global"]
-  checkSizeMinCents  Int?
-  checkSizeMaxCents  Int?
+  checkSizeMinCents  BigInt?
+  checkSizeMaxCents  BigInt?
   notes              String?        @db.Text
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt

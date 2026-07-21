@@ -92,7 +92,7 @@ export async function getDashboardData(workspaceId: string) {
       const key = lead.businessId;
       if (!acc[key]) acc[key] = { name: lead.business.name, count: 0, value: 0 };
       acc[key].count += 1;
-      acc[key].value += lead.dealValueCents ?? 0;
+      acc[key].value += Number(lead.dealValueCents ?? 0);
       return acc;
     },
     {}
