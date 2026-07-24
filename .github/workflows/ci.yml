@@ -55,6 +55,9 @@ jobs:
       - name: Prisma validate
         run: pnpm --filter @founderos/db exec prisma validate
 
+      - name: Prisma generate
+        run: pnpm --filter @founderos/db exec prisma generate
+
       - name: Prisma migrate deploy
         run: pnpm --filter @founderos/db exec prisma migrate deploy
 
