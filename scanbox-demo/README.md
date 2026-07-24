@@ -15,6 +15,27 @@ parsing (Demo 1) and label vision (Demo 2). Without it, deterministic
 fallbacks run and the UI says so — grounding, validation and refusal behaviour
 are identical either way.
 
+## Deploy to Cloudflare (optional, one command)
+
+The same app ships as a Cloudflare Worker (`worker/` + `wrangler.jsonc`):
+
+```
+npm run deploy     # bundles the active dataset, then wrangler deploy
+```
+
+First run opens a browser login to your Cloudflare account, then prints a
+public `https://scanbox-ai-demo.<your-subdomain>.workers.dev` URL. To serve it
+on your own domain, either uncomment the `routes` block in `wrangler.jsonc`
+(any zone already on your Cloudflare account) and redeploy, or use the
+dashboard: Workers & Pages → scanbox-ai-demo → Settings → Domains & Routes →
+Add custom domain.
+
+Notes: the Worker bundles whichever dataset exists at deploy time (real if
+acquired, otherwise the labelled fixture — re-run `npm run deploy` after
+acquisition). Set the model key with `npx wrangler secret put
+ANTHROPIC_API_KEY` if you want the LLM features live; without it the
+deterministic fallbacks run, same as locally.
+
 ---
 
 ## What was blocked (read this first)

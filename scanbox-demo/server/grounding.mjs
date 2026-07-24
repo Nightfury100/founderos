@@ -13,13 +13,6 @@
  *   5. Retrieval (BM25-lite) over the manual index, with a score threshold
  *      below which the answer is an explicit refusal + real support contact
  */
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-const DATA = path.join(here, "..", "data");
-
 export const NOT_SPECIFIED = "Not specified in ScanBox documentation";
 
 // Real support channel, from the project brief (verified facts supplied by the
@@ -30,18 +23,35 @@ export const SUPPORT_CONTACT = {
   source: "project brief (owner-verified)",
 };
 
-async function readJson(p) {
-  try {
-    return JSON.parse(await readFile(p, "utf8"));
-  } catch {
-    return null;
-  }
-}
-
 let cache = null;
+
+/**
+ * Inject a pre-built dataset (Cloudflare Workers has no filesystem; the
+ * worker entry point primes this from a bundled module instead). The shape
+ * must match what loadDataset would build from disk.
+ */
+export function primeDataset(data) {
+  cache = data;
+}
 
 export async function loadDataset({ allowFixtures = true } = {}) {
   if (cache) return cache;
+
+  // Node path: read the dataset from disk. Imported lazily so this module
+  // also runs on runtimes without node:fs (the worker primes the cache).
+  const { readFile } = await import("node:fs/promises");
+  const path = (await import("node:path")).default;
+  const { fileURLToPath } = await import("node:url");
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const DATA = path.join(here, "..", "data");
+  const readJson = async (p) => {
+    try {
+      return JSON.parse(await readFile(p, "utf8"));
+    } catch {
+      return null;
+    }
+  };
+
   const real = await readJson(path.join(DATA, "products.json"));
   const realIndex = await readJson(path.join(DATA, "manuals-index.json"));
   const parts = await readJson(path.join(DATA, "parts.json"));

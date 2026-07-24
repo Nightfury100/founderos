@@ -1,6 +1,6 @@
 # Adversarial QA Report
 
-- Run: 2026-07-24T13:44:56.564Z
+- Run: 2026-07-24T13:59:45.087Z
 - Dataset mode: **fixture** (3 products, 3 manual passages)
 - LLM: disabled (deterministic fallbacks - guards/validation identical)
 - Result: **34/34 passed**
