@@ -1,0 +1,44 @@
+{
+  "comment": "Seed URLs for the acquisition crawler. 'sections' are the canonical targets from the project brief. 'discovered' are real scanbox.se URLs surfaced via web-search index on 2026-07-24 (provenance: search index only - titles/paths unverified until fetched). The crawler expands from these plus on-page links, restricted to www.scanbox.se.",
+  "allowed_hosts": ["www.scanbox.se", "scanbox.se"],
+  "sections": [
+    "https://www.scanbox.se/en/products",
+    "https://www.scanbox.se/en/explore-our-products",
+    "https://www.scanbox.se/en/resources/user-manuals",
+    "https://www.scanbox.se/en/resources/product-catalogues",
+    "https://www.scanbox.se/en/resources/cad-files",
+    "https://www.scanbox.se/en/customer-support/faq",
+    "https://www.scanbox.se/en/industries",
+    "https://www.scanbox.se/en/customer-stories",
+    "https://www.scanbox.se/en/services",
+    "https://www.scanbox.se/en/why-scanbox",
+    "https://www.scanbox.se/en/support/manuals"
+  ],
+  "discovered": [
+    "https://www.scanbox.se/en/products/mobile-units",
+    "https://www.scanbox.se/en/products/mobile-units/under-counter",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-combo-46",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-single-10",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-combo-eldcf08",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-combo-66",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-single-elsne12",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-under-counter-elsuf05",
+    "https://www.scanbox.se/en/products/mobile-units/ergo-line/ergo-line-single-14",
+    "https://www.scanbox.se/en/products/mobile-units/banquet-master/banquet-master-single-icombi-bmsif20",
+    "https://www.scanbox.se/en/products/mobile-units/banquet-line/banquet-line-duo-bldcf12",
+    "https://www.scanbox.se/en/products/mobile-units/food-2-go/food2go-duo",
+    "https://www.scanbox.se/en/product/ergo-line-combo-n4-h8",
+    "https://www.scanbox.se/en/product/ergo-line-c12",
+    "https://www.scanbox.se/en/explore-our-products/tray-line",
+    "https://www.scanbox.se/en/explore-our-products/ergo-line",
+    "https://www.scanbox.se/en/explore-our-products/banquet-line",
+    "https://www.scanbox.se/en/explore-our-products/banquet-master",
+    "https://www.scanbox.se/en/explore-our-products/under-counter"
+  ],
+  "swedish_fallback_prefix": "https://www.scanbox.se/",
+  "product_lines_expected": [
+    "Ergo Line", "Under Counter", "Banquet Line", "Tray Line", "Banquet Master",
+    "Portable", "Specialized", "Crate Line", "Basic Line", "Bakery Line",
+    "Stackable Line", "Food 2 Go", "Ouzi Line", "Plated Line"
+  ]
+}

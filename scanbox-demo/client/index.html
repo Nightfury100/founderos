@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScanBox AI Demo Suite</title>
+  <link rel="stylesheet" href="brand.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="wordmark">ScanBox <span>AI Demo Suite</span></div>
+      <nav class="nav" aria-label="Demos">
+        <button data-view="advisor" aria-current="true"><span class="num">01</span> Needs Advisor</button>
+        <button data-view="parts"><span class="num">02</span> Spare Parts</button>
+        <button data-view="tender"><span class="num">03</span> Tender Generator</button>
+        <button data-view="support"><span class="num">04</span> Support Assistant</button>
+      </nav>
+      <dl class="meta" id="meta"></dl>
+    </aside>
+
+    <main class="main">
+      <div id="banner"></div>
+
+      <!-- ============ DEMO 1: Needs Advisor ============ -->
+      <section class="view" id="view-advisor">
+        <h1>Needs Advisor</h1>
+        <p class="lede">Describe the operation in plain language and get a grounded recommendation.
+        Toggle to see the same task through ScanBox's current spec-based filter &mdash; the contrast is the point.</p>
+
+        <div class="toggle" role="group" aria-label="Compare experiences">
+          <button id="mode-ai" aria-pressed="true">With AI</button>
+          <button id="mode-today" aria-pressed="false">ScanBox today</button>
+        </div>
+
+        <div id="advisor-ai">
+          <label for="advisor-input">Describe your operation</label>
+          <textarea id="advisor-input" placeholder="e.g. 220-bed care home, meals cooked centrally, two service lifts, lunch at 12:00, some diabetic and pureed diets"></textarea>
+          <div id="advisor-questions" class="stack" style="margin-top:16px"></div>
+          <div style="margin-top:16px">
+            <button class="btn primary" id="advisor-go">Get recommendation</button>
+          </div>
+          <div id="advisor-result" class="stack" style="margin-top:24px"></div>
+        </div>
+
+        <div id="advisor-today" class="hidden">
+          <p class="lede" style="margin-bottom:16px">Reproduction of the current buying journey: three technical facets, no guidance. The buyer must already know what fan heating or a GN 2/1 tray system is.</p>
+          <div class="facets" id="facet-groups"></div>
+          <div id="facet-results" class="stack"></div>
+        </div>
+
+        <div class="basket" id="basket-wrap">
+          <div class="card">
+            <h3>My quote</h3>
+            <div id="basket" class="basket-rows"><p class="basket-empty">No units added yet.</p></div>
+            <div style="margin-top:12px"><button class="btn" id="basket-request" disabled>Request a quote</button>
+            <span class="chip" style="margin-left:8px">ScanBox does not publish pricing &mdash; quotes are requested, never invented</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DEMO 2: Spare Parts ============ -->
+      <section class="view hidden" id="view-parts">
+        <h1>Spare Parts Identification</h1>
+        <p class="lede">Photograph the silver identification label on the box; the system reads model, serial
+        number and year, matches the unit and prepares the order request.</p>
+        <div id="parts-degraded"></div>
+
+        <h2>Label input</h2>
+        <div class="card">
+          <span class="chip badge-sample">Sample input &mdash; not a real photo</span>
+          <p style="font-size:13.5px;color:var(--ink-2);margin-top:8px">We do not have a photo of a real ScanBox label, so this demo ships with a rendered
+          sample (the &ldquo;SAMPLE&rdquo; banner is baked into the image itself). Upload your own photo to replace it.</p>
+          <img class="label-preview" id="label-img" src="sample-label.svg" alt="Sample identification label (clearly marked as sample)" />
+          <div class="row">
+            <div><label for="label-file">Upload a label photo</label><input type="file" id="label-file" accept="image/png,image/jpeg,image/webp" /></div>
+            <div><button class="btn primary" id="parts-go">Identify unit</button></div>
+          </div>
+          <div id="parts-manual-entry" class="hidden" style="margin-top:16px">
+            <p style="font-size:13px;color:var(--warn-ink)">Vision extraction needs an API key (not configured) &mdash; enter the label fields manually instead:</p>
+            <div class="row" style="margin-top:8px">
+              <div><label>Model name</label><input type="text" id="mf-model" /></div>
+              <div><label>Serial number</label><input type="text" id="mf-serial" /></div>
+              <div><label>Article number</label><input type="text" id="mf-article" /></div>
+            </div>
+          </div>
+        </div>
+        <div id="parts-result" class="stack" style="margin-top:24px"></div>
+      </section>
+
+      <!-- ============ DEMO 3: Tender Generator ============ -->
+      <section class="view hidden" id="view-tender">
+        <h1>Tender Specification Generator</h1>
+        <p class="lede">Formal public-procurement text in four languages. Every technical value is looked up
+        from the dataset &mdash; never generated. Missing values say so, verbatim.</p>
+        <div class="row">
+          <div><label for="tender-unit">Unit</label><select id="tender-unit"></select></div>
+          <div><label for="tender-lang">Language</label>
+            <select id="tender-lang">
+              <option value="sv">Svenska</option>
+              <option value="en" selected>English</option>
+              <option value="fr">Fran&ccedil;ais</option>
+              <option value="de">Deutsch</option>
+            </select></div>
+          <div><button class="btn primary" id="tender-go">Generate</button></div>
+        </div>
+        <div id="tender-result" style="margin-top:24px"></div>
+      </section>
+
+      <!-- ============ DEMO 4: Support Assistant ============ -->
+      <section class="view hidden" id="view-support">
+        <h1>Technical Support Assistant</h1>
+        <p class="lede">Answers come verbatim from the manual corpus with page-level citations. Questions the
+        corpus cannot answer get an explicit refusal and the real support contact &mdash; try it.</p>
+        <div class="row">
+          <div><label for="support-input">Question</label><input type="text" id="support-input" placeholder="e.g. how do I replace the door gasket?" /></div>
+          <div><button class="btn primary" id="support-go">Ask</button></div>
+        </div>
+        <div id="support-result" class="stack" style="margin-top:24px"></div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

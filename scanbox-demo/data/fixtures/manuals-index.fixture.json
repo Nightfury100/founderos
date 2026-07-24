@@ -1,0 +1,25 @@
+{
+  "version": "fixture-1",
+  "is_fixture": true,
+  "notice": "SYNTHETIC FIXTURE PASSAGES for exercising the retrieval + citation UI only. Not from any ScanBox manual.",
+  "passages": [
+    {
+      "manual": "demo-unit-hot-8-manual.pdf (fixture)",
+      "source_url": "fixture://demo-hot-08-manual",
+      "page": 4,
+      "text": "Demo Unit Hot 8 (fixture): The door gasket is mounted in a channel around the door frame. To replace the gasket, open the door fully, pull the old gasket out of the channel starting at a corner, and press the new gasket in evenly. No tools are required. Fixture text - not from a ScanBox manual."
+    },
+    {
+      "manual": "demo-unit-hot-8-manual.pdf (fixture)",
+      "source_url": "fixture://demo-hot-08-manual",
+      "page": 7,
+      "text": "Demo Unit Hot 8 (fixture): The cabinet holds food at an adjustable temperature of up to +90 C. Allow 20 minutes of preheating before loading. Fixture text - not from a ScanBox manual."
+    },
+    {
+      "manual": "demo-unit-cold-12-manual.pdf (fixture)",
+      "source_url": "fixture://demo-cold-12-manual",
+      "page": 3,
+      "text": "Demo Unit Cold 12 (fixture): Clean the condenser grille every month. Disconnect the mains plug before cleaning. Fixture text - not from a ScanBox manual."
+    }
+  ]
+}

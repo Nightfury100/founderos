@@ -1,0 +1,51 @@
+{
+  "version": "fixture-1",
+  "is_fixture": true,
+  "notice": "SYNTHETIC FIXTURE DATA. These are NOT ScanBox products and every value here is invented purely to exercise the UI while the real dataset is unobtainable (network to scanbox.se blocked in the build environment). The app displays a persistent banner whenever this file is the active dataset. Do not present these units in a pitch.",
+  "products": [
+    {
+      "id": "DEMO-HOT-08",
+      "name": "Demo Unit Hot 8 (fixture)",
+      "line": "Demo Line",
+      "model_type": "Single",
+      "function": "static heating",
+      "tray_system": ["GN 1/1"],
+      "source_url": "fixture://demo-hot-08",
+      "specs": {
+        "Capacity": { "value": "8 x GN 1/1, 80 mm spacing", "source_url": "fixture://demo-hot-08" },
+        "Temperature range": { "value": "up to +90 C", "source_url": "fixture://demo-hot-08" },
+        "External dimensions (WxDxH)": { "value": "540 x 810 x 1120 mm", "source_url": "fixture://demo-hot-08" },
+        "Weight": { "value": "49 kg", "source_url": "fixture://demo-hot-08" }
+      },
+      "description": "Fixture record used only to demonstrate the interface. Not a ScanBox product."
+    },
+    {
+      "id": "DEMO-COMBO-46",
+      "name": "Demo Unit Combo 4+6 (fixture)",
+      "line": "Demo Line",
+      "model_type": "Combo",
+      "function": "fan heating + compressor cooling",
+      "tray_system": ["GN 1/1"],
+      "source_url": "fixture://demo-combo-46",
+      "specs": {
+        "Capacity": { "value": "4 + 6 x GN 1/1", "source_url": "fixture://demo-combo-46" },
+        "Temperature range": { "value": "+3 C to +90 C (dual compartments)", "source_url": "fixture://demo-combo-46" }
+      },
+      "description": "Fixture record used only to demonstrate the interface. Not a ScanBox product."
+    },
+    {
+      "id": "DEMO-COLD-12",
+      "name": "Demo Unit Cold 12 (fixture)",
+      "line": "Demo Line",
+      "model_type": "Single",
+      "function": "compressor cooling",
+      "tray_system": ["GN 2/1"],
+      "source_url": "fixture://demo-cold-12",
+      "specs": {
+        "Capacity": { "value": "12 x GN 2/1", "source_url": "fixture://demo-cold-12" },
+        "Temperature range": { "value": "down to +3 C", "source_url": "fixture://demo-cold-12" }
+      },
+      "description": "Fixture record used only to demonstrate the interface. Not a ScanBox product."
+    }
+  ]
+}
