@@ -1,0 +1,23 @@
+{
+  // Cloudflare Workers config for the ScanBox AI Demo Suite.
+  // Deploy: npm run deploy  (first time: wrangler opens a browser login)
+  //
+  // Custom domain: replace CHANGE-ME below with a (sub)domain on a zone in
+  // your Cloudflare account and uncomment the routes block - or skip it and
+  // use the *.workers.dev URL wrangler prints, then add a custom domain later
+  // in the dashboard (Workers & Pages -> scanbox-ai-demo -> Settings ->
+  // Domains & Routes).
+  "name": "scanbox-ai-demo",
+  "main": "worker/index.mjs",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./client",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "workers_dev": true
+  // ,"routes": [
+  //   { "pattern": "scanbox.CHANGE-ME.com", "custom_domain": true }
+  // ]
+}

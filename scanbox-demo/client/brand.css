@@ -1,0 +1,19 @@
+/* PALETTE: placeholder - NOT sampled from scanbox.se yet. The build
+   environment could not reach the site (egress blocked), and per the design
+   rules we do not invent a "ScanBox look". Run `npm run brand` from a
+   networked environment to sample their real colours into these tokens. */
+:root {
+  --accent: #1f5f8b;      /* placeholder steel blue - replaced by npm run brand */
+  --accent-ink: #ffffff;
+  --ink: #1b1d1f;
+  --ink-2: #55595e;
+  --ink-3: #8a8f95;
+  --paper: #fafafa;
+  --surface: #ffffff;
+  --line: #e4e6e8;
+  --line-strong: #cfd2d5;
+  --warn-bg: #fef3c7;
+  --warn-ink: #92400e;
+  --danger: #b91c1c;
+  --ok: #15803d;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "scanbox-ai-demo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ScanBox AI Demo Suite - four grounded AI demos built on ScanBox's published material",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.mjs",
+    "acquire": "node pipeline/acquire.mjs",
+    "parse": "node pipeline/parse.mjs",
+    "brand": "node pipeline/extract-brand.mjs",
+    "label": "node pipeline/make-sample-label.mjs",
+    "qa": "node qa/run-qa.mjs",
+    "bundle-data": "node worker/build-dataset.mjs",
+    "deploy": "npm run bundle-data && wrangler deploy"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
+    "express": "^4.21.2",
+    "pdf-parse": "^1.1.1",
+    "undici": "^7.3.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.114.0"
+  }
+}
