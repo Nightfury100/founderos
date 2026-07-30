@@ -42,9 +42,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `version:` input — pnpm/action-setup@v4 errors out when it is set
+      # alongside `packageManager` in package.json. package.json (pnpm@9.15.0)
+      # is the single source of truth.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
@@ -53,6 +54,14 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # @prisma/client ships as a stub that re-exports `.prisma/client`, which
+      # only contains the generated models and enums after `prisma generate`.
+      # Without this step the seed fails on `import { Role } from
+      # "@prisma/client"`, and nothing else in the pipeline generates it before
+      # the seed runs.
+      - name: Prisma generate
+        run: pnpm --filter @founderos/db exec prisma generate
 
       - name: Prisma validate
         run: pnpm --filter @founderos/db exec prisma validate

@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Puffy Lux Hybrid Mattress — First Fold (Desktop Redesign)</title>
+<meta name="description" content="Desktop first-fold redesign of the Puffy Lux Hybrid product page: 12-inch, 8-layer luxury hybrid with Cooling Cloud memory foam and Contour-Adapt coils." />
+<style>
+/* ============================================================
+   Puffy Lux Hybrid — PDP first fold, desktop
+   Design tokens. Every text/UI pair below is checked to
+   WCAG 2.1 AA (4.5:1 body, 3:1 large text and UI boundaries).
+   ============================================================ */
+:root{
+  --ink:        #101B2D;  /* 16.3:1 on ivory */
+  --ink-deep:   #0E1A2B;  /* CTA / nav ground */
+  --ivory:      #FBF8F4;  /* panel ground */
+  --paper:      #FFFFFF;
+  --muted:      #55606F;  /* 6.03:1 on ivory */
+  --rule:       #E6DFD4;
+  --rule-strong:#CFC5B5;
+  --brass:      #7A5F30;  /* 5.66:1 on ivory — text + state borders */
+  --brass-soft: #C2A878;  /* decorative only */
+  --brass-lite: #D8B45A;  /* 8.82:1 on ink */
+  --green:      #14684F;  /* 6.35:1 on ivory */
+  --navy-bar:   #16233A;
+  --amber:      #F2C14E;  /* 9.37:1 on navy bar */
+  --shadow-sm:  0 1px 2px rgba(16,27,45,.06), 0 2px 8px rgba(16,27,45,.05);
+  --shadow-md:  0 2px 6px rgba(16,27,45,.07), 0 14px 34px rgba(16,27,45,.09);
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --promo-h: 44px;
+  --nav-h: 76px;
+
+  /* Vertical rhythm tokens. The whole purchase column is driven from these
+     so the fold can be compacted for shorter laptops in one place — the
+     CTA and the guarantee row must never cross the fold. */
+  --pad-y: 26px;
+  --gap: 17px;
+  --h1: 50px;
+  --deck: 16px;
+  --tile-h: 46px;
+  --cta-h: 60px;
+  --amt: 40px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--ivory);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+
+/* Focus: 3px ring, always ≥3:1 against its own background */
+:where(a,button,input,summary):focus-visible{
+  outline:3px solid var(--ink);
+  outline-offset:3px;
+  border-radius:4px;
+}
+.on-dark:focus-visible{outline-color:var(--amber)}
+
+.visually-hidden{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+.skip-link{
+  position:absolute;left:16px;top:-60px;z-index:99;
+  background:var(--ink-deep);color:#fff;padding:12px 18px;border-radius:6px;
+  font-size:14px;font-weight:600;text-decoration:none;transition:top .15s ease;
+}
+.skip-link:focus{top:12px}
+
+/* ============================================================
+   1 · Promotional bar
+   ============================================================ */
+.promo{
+  height:var(--promo-h);
+  background:var(--navy-bar);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:13.5px;letter-spacing:.055em;text-transform:uppercase;font-weight:600;
+}
+.promo b{color:var(--amber);font-weight:700}
+.promo .dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.45)}
+
+/* ============================================================
+   2 · Navigation
+   ============================================================ */
+.nav{
+  height:var(--nav-h);
+  background:var(--ink-deep);
+  color:#fff;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:32px;
+  padding:0 40px;
+  position:relative;
+  z-index:5;
+}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none}
+.brand-word{font-family:var(--serif);font-size:27px;letter-spacing:.005em;color:#fff}
+.nav-primary,.nav-secondary{display:flex;align-items:center;gap:30px;list-style:none;margin:0;padding:0}
+.nav-primary{justify-self:center}
+.nav a.nav-link{
+  color:#fff;text-decoration:none;font-size:14.5px;font-weight:500;letter-spacing:.01em;
+  padding:6px 2px;border-bottom:2px solid transparent;
+}
+.nav a.nav-link:hover{border-bottom-color:var(--brass-lite)}
+.nav-secondary a.nav-link{font-size:13.5px;color:#EAE6DF}
+.cart{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);
+  color:#fff;text-decoration:none;
+}
+.cart-count{
+  position:absolute;top:-2px;right:-2px;min-width:19px;height:19px;padding:0 5px;
+  border-radius:10px;background:var(--brass-lite);color:#0E1A2B;
+  font-size:11px;font-weight:700;display:grid;place-items:center;
+}
+
+/* ============================================================
+   3 · The fold
+   ============================================================ */
+.fold{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 660px;
+  min-height:calc(100vh - var(--promo-h) - var(--nav-h));
+  background:var(--ivory);
+}
+
+/* --- 3a · Hero stage -------------------------------------- */
+.stage{position:relative;overflow:hidden;background:#E7DED1;isolation:isolate}
+.stage-art{position:absolute;inset:0;width:100%;height:100%}
+.stage-art svg{width:100%;height:100%;object-fit:cover}
+
+/* Legibility scrims — the overlays sit on gradients, not raw photo */
+.stage::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    /* localised scrim under the headline block, so the accent gold clears 3:1 */
+    radial-gradient(115% 78% at 0% 6%, rgba(8,15,26,.80) 0%, rgba(8,15,26,.55) 34%, rgba(8,15,26,0) 70%),
+    linear-gradient(101deg, rgba(10,18,31,.72) 0%, rgba(10,18,31,.56) 18%, rgba(10,18,31,.30) 36%, rgba(10,18,31,.09) 52%, rgba(10,18,31,0) 70%),
+    linear-gradient(0deg,   rgba(10,18,31,.42) 0%, rgba(10,18,31,.06) 18%, rgba(10,18,31,0) 32%);
+}
+/* Anchored to the fold height, not to the stage box, so the spec chip
+   stays visible even when the purchase column runs taller than the fold */
+.stage-copy{
+  position:absolute;inset:0 0 auto 0;z-index:2;
+  height:calc(100vh - var(--promo-h) - var(--nav-h));
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:38px 44px 34px;
+}
+
+.kicker{
+  color:#fff;font-family:var(--serif);font-size:clamp(28px,2.2vw,38px);line-height:1.18;
+  max-width:15ch;margin:0;text-shadow:0 1px 16px rgba(11,20,34,.6);
+}
+.kicker em{font-style:normal;color:#E2C273}
+
+/* Award rail — three real third-party awards, not five */
+.awards{display:flex;gap:10px;list-style:none;margin:18px 0 0;padding:0;flex-wrap:wrap}
+.award{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(12,22,37,.72);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:3px;padding:9px 14px 9px 11px;
+  backdrop-filter:blur(6px);
+}
+.award svg{flex:none}
+.award-src{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-lite);font-weight:700}
+.award-txt{display:block;font-size:12.5px;line-height:1.3;color:#fff;font-weight:500;max-width:17ch}
+
+/* Spec chip anchored to the mattress edge */
+.spec-chip{
+  align-self:flex-start;display:flex;align-items:stretch;gap:0;
+  background:rgba(251,248,244,.94);border-radius:3px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(14,26,43,.28);
+}
+.spec-chip div{padding:11px 18px}
+.spec-chip div + div{border-left:1px solid var(--rule-strong)}
+.spec-chip dt{margin:0;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--brass);font-weight:700}
+.spec-chip dd{margin:2px 0 0;font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.01em}
+
+/* --- 3b · Purchase panel ---------------------------------- */
+.buy{
+  background:var(--ivory);
+  border-left:1px solid var(--rule);
+  padding:var(--pad-y) 48px;
+  display:flex;flex-direction:column;
+}
+.buy-inner{display:flex;flex-direction:column;gap:var(--gap);margin:auto 0}
+
+.eyebrow{
+  margin:0;font-size:12px;font-weight:700;letter-spacing:.19em;text-transform:uppercase;color:var(--brass);
+}
+h1{
+  font-family:var(--serif);font-weight:400;
+  font-size:var(--h1);line-height:1.02;letter-spacing:-.012em;
+  margin:6px 0 0;color:var(--ink);
+}
+h1 .lux{font-style:italic}
+.deck{margin:10px 0 0;font-size:var(--deck);line-height:1.55;color:var(--muted);max-width:46ch}
+.deck strong{color:var(--ink);font-weight:600}
+
+/* Rating */
+.rating{display:flex;align-items:center;gap:10px;margin:0}
+.stars{display:flex;gap:2px}
+.rating-score{font-weight:700;font-size:14.5px}
+.rating-link{font-size:14px;color:var(--muted);text-underline-offset:3px}
+.rating-link:hover{color:var(--ink)}
+
+.hr{height:1px;background:var(--rule);border:0;margin:0}
+
+/* Two proof rows */
+.proof{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:13px}
+.proof li{display:flex;align-items:flex-start;gap:13px;font-size:14.5px;line-height:1.45;color:var(--ink)}
+.proof li svg{flex:none;margin-top:1px}
+.proof span{color:var(--muted)}
+
+/* Size selector */
+.field-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:11px}
+.field-label{font-size:15px;font-weight:600;letter-spacing:.01em}
+.field-label .dims{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:8px}
+.field-link{font-size:13px;color:var(--brass);font-weight:600;text-underline-offset:3px}
+.sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border:0;padding:0;margin:0}
+.sizes legend{padding:0}
+.size{position:relative}
+.size input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.size label{
+  display:grid;place-items:center;text-align:center;
+  min-height:var(--tile-h);padding:6px 4px;
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:3px;
+  font-size:13.5px;font-weight:500;color:var(--ink);cursor:pointer;
+  transition:border-color .12s ease, background .12s ease;
+}
+.size label:hover{border-color:var(--brass)}
+/* Selected state uses THREE signals: 2px ink border, tinted fill, and a ✓ —
+   never colour alone (WCAG 1.4.1) */
+.size input:checked + label{
+  border:2px solid var(--ink);background:#F3EADA;font-weight:700;padding:5px 3px;
+}
+.size input:checked + label::after{
+  content:"";position:absolute;top:5px;right:6px;width:11px;height:9px;
+  background:var(--ink);
+  clip-path:polygon(0 45%,38% 100%,100% 8%,86% 0,36% 72%,10% 34%);
+}
+.size input:focus-visible + label{outline:3px solid var(--ink);outline-offset:3px}
+
+/* Price block */
+.price-card{
+  /* margin-top clears the -11px overhang of the sale flag at compact gaps */
+  position:relative;margin-top:6px;background:var(--paper);border:1px solid var(--rule-strong);
+  border-radius:3px;padding:20px 22px 18px;box-shadow:var(--shadow-sm);
+}
+.price-flag{
+  position:absolute;top:-11px;left:20px;background:var(--green);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  padding:5px 11px;border-radius:2px;
+}
+.price-was{font-size:13.5px;color:var(--muted);margin:0}
+.price-was s{text-decoration-thickness:1px}
+.price-now{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:5px 0 0}
+.price-amt{font-family:var(--serif);font-size:var(--amt);line-height:1;letter-spacing:-.02em}
+.price-code{font-size:13.5px;color:var(--muted)}
+.price-code b{color:var(--ink);letter-spacing:.06em}
+.price-save{
+  display:inline-block;margin-top:9px;font-size:13.5px;font-weight:700;color:var(--green);
+}
+.price-fin{margin:9px 0 0;font-size:12.5px;line-height:1.8;color:var(--muted)}
+.price-fin b{color:var(--ink);font-weight:600}
+
+/* CTA */
+.cta{
+  display:flex;align-items:center;justify-content:center;gap:12px;width:100%;
+  min-height:var(--cta-h);padding:0 24px;border:0;border-radius:3px;cursor:pointer;
+  background:var(--ink-deep);color:#fff;
+  font-size:16.5px;font-weight:600;letter-spacing:.015em;
+  box-shadow:var(--shadow-md);
+  transition:transform .12s ease, background .12s ease;
+}
+.cta:hover{background:#182742;transform:translateY(-1px)}
+.cta:active{transform:translateY(0)}
+.cta .cta-sub{font-size:13px;font-weight:400;color:var(--brass-lite)}
+
+/* Reassurance directly under the CTA — the risk-reversal row */
+.assure{list-style:none;display:flex;flex-wrap:wrap;gap:8px 20px;margin:13px 0 0;padding:0}
+.assure li{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);font-weight:500}
+.assure svg{flex:none}
+.delivery{margin:9px 0 0;font-size:12.5px;color:var(--muted)}
+
+/* Secondary upgrade — placed AFTER the CTA on purpose */
+.upsell{
+  display:flex;align-items:center;gap:14px;
+  border:1px solid var(--rule);border-left:3px solid var(--brass-soft);
+  background:rgba(255,255,255,.6);border-radius:3px;padding:12px 16px;
+  text-decoration:none;
+}
+.upsell-thumb{flex:none;border-radius:2px}
+.upsell-txt{font-size:13px;line-height:1.4;color:var(--muted)}
+.upsell-txt b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:2px}
+.upsell-cta{margin-left:auto;font-size:13px;font-weight:700;color:var(--brass);white-space:nowrap}
+.upsell:hover{border-color:var(--brass-soft);background:#fff}
+
+/* ============================================================
+   4 · Fold-fit ladder. Only these tokens change with viewport
+   height, so the CTA + guarantee row stay above the fold from
+   1280x800 laptops up to 1920x1080 desktops.
+   ============================================================ */
+@media (max-height:1010px){
+  :root{
+    --promo-h:40px; --nav-h:66px;
+    --pad-y:16px; --gap:12px; --h1:38px; --deck:15px;
+    --tile-h:40px; --cta-h:54px; --amt:34px;
+  }
+  .buy{padding-left:40px;padding-right:40px}
+  .stage-copy{padding:28px 36px 26px}
+  .kicker{font-size:29px}
+  .proof{gap:10px}
+  .award-txt{font-size:12px}
+}
+@media (max-height:830px){
+  :root{
+    --promo-h:38px; --nav-h:60px;
+    --pad-y:12px; --gap:9px; --h1:33px; --deck:14px;
+    --tile-h:36px; --cta-h:50px; --amt:30px;
+  }
+  .buy{padding-left:34px;padding-right:34px}
+  .eyebrow{font-size:11px}
+  .proof{gap:7px}
+  .proof li{font-size:13px}
+  .sizes{gap:6px}
+  .size label{font-size:12.5px}
+  .price-card{padding:12px 16px 11px}
+  .price-fin{margin-top:5px}
+  .assure{margin-top:9px;gap:5px 16px}
+  .assure li{font-size:12.5px}
+  .delivery{margin-top:6px;font-size:12px}
+  .upsell{padding:8px 14px}
+  .field-head{margin-bottom:7px}
+  .stage-copy{padding:22px 30px 22px}
+  .kicker{font-size:25px}
+  .spec-chip div{padding:8px 14px}
+  .spec-chip dd{font-size:14px}
+}
+@media (max-width:1500px){
+  .fold{grid-template-columns:minmax(0,1fr) 580px}
+  .buy{padding-left:36px;padding-right:36px}
+  .nav{padding:0 28px;gap:20px}
+  .nav-primary,.nav-secondary{gap:20px}
+}
+@media (max-width:1200px){
+  .fold{grid-template-columns:1fr}
+  .stage{min-height:52vh}
+  .buy{border-left:0;border-top:1px solid var(--rule)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .cta:hover{transform:none}
+}
+@media (prefers-contrast:more){
+  :root{--muted:#3A4351;--rule:#B9AF9F;--rule-strong:#8A8071;--brass:#5F4A24}
+  .size label{border-width:2px}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#buy-panel">Skip to size and price</a>
+
+<!-- ============ 1 · Promotional bar ============ -->
+<div class="promo" role="region" aria-label="Current promotion">
+  <span>Summer Sale — <b>save&nbsp;$1,350</b></span>
+  <span class="dot" aria-hidden="true"></span>
+  <span>Free $315 Signature Pillow with every mattress</span>
+</div>
+
+<!-- ============ 2 · Navigation ============ -->
+<header class="nav">
+  <a class="brand on-dark" href="#" aria-label="Puffy — home">
+    <svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
+      <path fill="#fff" d="M8.6 19h14.2c3.4 0 6.2-2.6 6.2-5.9 0-3-2.3-5.5-5.3-5.8-.7-4-4.3-7-8.6-7-4 0-7.4 2.6-8.4 6.2C3 7 0 10 0 13.6 0 16.6 2.4 19 5.4 19h3.2z"/>
+    </svg>
+    <span class="brand-word">Puffy</span>
+  </a>
+
+  <nav aria-label="Product categories">
+    <ul class="nav-primary">
+      <li><a class="nav-link on-dark" href="#" aria-current="page">Mattresses</a></li>
+      <li><a class="nav-link on-dark" href="#">Smart Beds</a></li>
+      <li><a class="nav-link on-dark" href="#">Bed Frames</a></li>
+      <li><a class="nav-link on-dark" href="#">Bedding</a></li>
+    </ul>
+  </nav>
+
+  <nav aria-label="Support and account">
+    <ul class="nav-secondary">
+      <li><a class="nav-link on-dark" href="#">365-Night Trial</a></li>
+      <li><a class="nav-link on-dark" href="#">Puffy VS</a></li>
+      <li><a class="nav-link on-dark" href="#">Support</a></li>
+      <li><a class="nav-link on-dark" href="#">Stores</a></li>
+      <li>
+        <a class="cart on-dark" href="#" aria-label="Cart, 0 items">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" focusable="false">
+            <path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+          </svg>
+          <span class="cart-count" aria-hidden="true">0</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ============ 3 · The fold ============ -->
+<main class="fold">
+
+  <!-- ---- 3a · Hero stage ---- -->
+  <section class="stage" aria-label="Puffy Lux Hybrid product photography and awards">
+    <div class="stage-art">
+      <!--
+        HERO ARTWORK — the actual Puffy Lux Hybrid.
+        Product-accurate vector build: 12" profile, quilted euro-top in white,
+        charcoal knit side panel with silver piping and the Puffy cloud mark,
+        low platform base. See README.md for the production photo-swap slot
+        and the exact AI prompt used to generate the shipping hero.
+      -->
+      <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice"
+           role="img" aria-labelledby="hero-img-title hero-img-desc">
+        <title id="hero-img-title">Puffy Lux Hybrid mattress, 12-inch profile</title>
+        <desc id="hero-img-desc">Studio photograph of the Puffy Lux Hybrid on a low oak platform base: a white quilted euro-top with silver piping over a charcoal knit side panel carrying the Puffy Lux Hybrid mark, dressed with two plush pillows, lit from the upper left against a warm seamless backdrop.</desc>
+
+        <defs>
+          <!-- Seamless studio backdrop -->
+          <linearGradient id="cyc" x1="0" y1="0" x2=".15" y2="1">
+            <stop offset="0"   stop-color="#F7F0E5"/>
+            <stop offset=".42" stop-color="#EDE3D4"/>
+            <stop offset=".76" stop-color="#DDCFBA"/>
+            <stop offset="1"   stop-color="#C7B69D"/>
+          </linearGradient>
+          <radialGradient id="keylight" cx=".46" cy=".38" r=".62">
+            <stop offset="0"   stop-color="#FFFCF5" stop-opacity=".95"/>
+            <stop offset=".55" stop-color="#FFF8EA" stop-opacity=".34"/>
+            <stop offset="1"   stop-color="#FFF8EA" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="vig" cx=".44" cy=".4" r=".82">
+            <stop offset=".46" stop-color="#000" stop-opacity="0"/>
+            <stop offset="1"   stop-color="#31240F" stop-opacity=".3"/>
+          </radialGradient>
+
+          <!-- Mattress surfaces: key light from the upper left -->
+          <linearGradient id="topFace" x1=".05" y1="0" x2=".85" y2=".95">
+            <stop offset="0"   stop-color="#FFFFFF"/>
+            <stop offset=".42" stop-color="#FBFAF7"/>
+            <stop offset="1"   stop-color="#E4E0D7"/>
+          </linearGradient>
+          <linearGradient id="euroFace" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0"   stop-color="#FFFFFE"/>
+            <stop offset=".58" stop-color="#F5F2ED"/>
+            <stop offset="1"   stop-color="#DBD6CE"/>
+          </linearGradient>
+          <linearGradient id="euroSide" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#D3CDC4"/>
+            <stop offset="1" stop-color="#B2ACA2"/>
+          </linearGradient>
+          <linearGradient id="knit" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0"   stop-color="#5C6572"/>
+            <stop offset=".5"  stop-color="#424A56"/>
+            <stop offset="1"   stop-color="#2A313A"/>
+          </linearGradient>
+          <linearGradient id="knitSide" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#2A313B"/>
+            <stop offset="1" stop-color="#191E26"/>
+          </linearGradient>
+          <radialGradient id="pillow" cx=".33" cy=".26" r=".88">
+            <stop offset="0"   stop-color="#FFFFFF"/>
+            <stop offset=".55" stop-color="#F8F5F0"/>
+            <stop offset="1"   stop-color="#DBD4C8"/>
+          </radialGradient>
+
+          <!-- Quilted euro-top: diamond stitch, flattened into the top-face perspective -->
+          <pattern id="quilt" width="54" height="54" patternUnits="userSpaceOnUse"
+                   patternTransform="rotate(-4.3) skewX(-36) scale(1 .5)">
+            <path d="M0 27 L27 0 L54 27 L27 54 Z" fill="none" stroke="#CFC8BD" stroke-width="1.8" opacity=".7"/>
+            <circle cx="27" cy="27" r="2.6" fill="#C3BBAE" opacity=".55"/>
+          </pattern>
+          <pattern id="quiltFace" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="skewY(-4.3)">
+            <path d="M0 11 L11 0 L22 11 L11 22 Z" fill="none" stroke="#D2CCC2" stroke-width=".9" opacity=".9"/>
+          </pattern>
+          <pattern id="weave" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="skewY(-4.3)">
+            <path d="M0 2.5 H5 M2.5 0 V5" stroke="#98a2ae" stroke-width=".55" opacity=".3"/>
+          </pattern>
+
+          <filter id="grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <filter id="soft"  x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="28"/></filter>
+          <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="11"/></filter>
+          <filter id="soft3" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+
+          <path id="topPath" d="M168,617 L923,561 Q940,560 946,550 L1044,387 Q1050,380 1035,381 L316,419
+                                Q300,420 296,428 L153,605 Q150,620 168,617 Z"/>
+          <clipPath id="clipTop"><use href="#topPath"/></clipPath>
+          <clipPath id="clipEuroFront"><polygon points="150,620 940,560 940,590 150,650"/></clipPath>
+          <clipPath id="clipKnitFront"><polygon points="150,652 940,592 940,638 150,698"/></clipPath>
+          <clipPath id="clipKnitSide"><polygon points="940,592 1050,407 1050,446 940,638"/></clipPath>
+
+          <linearGradient id="reflFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"   stop-color="#fff" stop-opacity=".42"/>
+            <stop offset=".55" stop-color="#fff" stop-opacity=".08"/>
+            <stop offset="1"   stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <mask id="reflMask"><rect x="0" y="703" width="1200" height="197" fill="url(#reflFade)"/></mask>
+
+          <!-- ===== The product, drawn once, used twice (object + reflection) ===== -->
+          <g id="bedArt">
+            <!-- Top face + quilting + falling light -->
+            <use href="#topPath" fill="url(#topFace)"/>
+            <g clip-path="url(#clipTop)">
+              <rect x="120" y="360" width="960" height="280" fill="url(#quilt)"/>
+              <polygon points="150,622 486,597 604,392 300,420" fill="#FFFFFF" opacity=".34" filter="url(#soft2)"/>
+            </g>
+            <use href="#topPath" fill="none" stroke="#DCD6CC" stroke-width="1.2"/>
+            <polygon points="186,614 926,560 1026,395 328,431" fill="none" stroke="#CCC5BA" stroke-width="1.4" opacity=".75"/>
+
+            <!-- Quilted euro-top band, front and right -->
+            <polygon points="150,620 940,560 940,590 150,650" fill="url(#euroFace)"/>
+            <g clip-path="url(#clipEuroFront)"><rect x="140" y="550" width="810" height="110" fill="url(#quiltFace)"/></g>
+            <polygon points="940,560 1050,380 1050,405 940,590" fill="url(#euroSide)"/>
+
+            <!-- Silver piping -->
+            <polyline points="150,650 940,590 1050,405" fill="none" stroke="#F9F6F1" stroke-width="4.5"/>
+            <polyline points="150,652.5 940,592.5 1050,407.5" fill="none" stroke="#B5AEA3" stroke-width="1.1" opacity=".7"/>
+
+            <!-- Charcoal knit side panel -->
+            <polygon points="150,652 940,592 940,638 150,698" fill="url(#knit)"/>
+            <g clip-path="url(#clipKnitFront)"><rect x="140" y="580" width="810" height="130" fill="url(#weave)"/></g>
+            <polygon points="940,592 1050,407 1050,446 940,638" fill="url(#knitSide)"/>
+            <g clip-path="url(#clipKnitSide)"><rect x="930" y="400" width="130" height="250" fill="url(#weave)"/></g>
+
+            <!-- Puffy Lux Hybrid mark, woven into the side panel -->
+            <g transform="translate(408,637) rotate(-4.3)">
+              <path fill="#FAF9F6"
+                    d="M5.1 11.5h8.6c2.1 0 3.8-1.6 3.8-3.6 0-1.8-1.4-3.3-3.2-3.5C13.8 1.9 11.6 0 9 0 6.6 0 4.5 1.6 3.9 3.9 1.8 4.3 0 6.1 0 8.3c0 1.8 1.4 3.2 3.2 3.2h1.9z"/>
+              <text x="23" y="12" font-family="Georgia,'Times New Roman',serif" font-size="17.5" fill="#FAF9F6" letter-spacing=".6">Puffy</text>
+              <text x="23.5" y="25.5" font-family="Helvetica,Arial,sans-serif" font-size="7.4" fill="#D2D7DE" letter-spacing="3">LUX HYBRID</text>
+            </g>
+
+            <!-- Base rail -->
+            <polygon points="150,698 940,638 940,652 150,712" fill="#171C24"/>
+            <polygon points="940,638 1050,446 1050,458 940,652" fill="#11151B"/>
+
+            <!-- Pillows -->
+            <g transform="translate(772,452) rotate(-4.3)">
+              <ellipse cx="10" cy="40" rx="120" ry="17" fill="#7A6F5D" opacity=".32" filter="url(#soft2)"/>
+              <path d="M-116,-14 C-118,-32 -84,-46 -40,-45 C-8,-44 8,-48 44,-46 C88,-44 118,-30 117,-9
+                       C116,12 108,32 66,40 C28,47 -18,48 -56,43 C-96,38 -114,26 -116,-14 Z"
+                    fill="url(#pillow)" stroke="#D5CFC4" stroke-width="1.3"/>
+              <path d="M-92,-26 C-58,-39 -6,-41 46,-37" fill="none" stroke="#FFFFFF" stroke-width="3.4" opacity=".8"/>
+              <path d="M-64,24 C-20,34 44,31 96,8" fill="none" stroke="#C9C2B5" stroke-width="1.8" opacity=".38"/>
+              <path d="M62,-40 C96,-28 112,-10 110,8 C108,26 96,36 70,42" fill="none" stroke="#CFC7B9" stroke-width="2.4" opacity=".35"/>
+            </g>
+            <g transform="translate(506,484) rotate(-4.3)">
+              <ellipse cx="10" cy="44" rx="128" ry="18" fill="#7A6F5D" opacity=".34" filter="url(#soft2)"/>
+              <path d="M-124,-15 C-126,-34 -90,-50 -43,-48 C-8,-46 8,-51 47,-49 C94,-47 126,-32 125,-10
+                       C124,13 116,34 71,43 C30,51 -19,51 -60,46 C-103,41 -122,28 -124,-15 Z"
+                    fill="url(#pillow)" stroke="#D5CFC4" stroke-width="1.3"/>
+              <path d="M-98,-28 C-62,-42 -6,-44 49,-40" fill="none" stroke="#FFFFFF" stroke-width="3.6" opacity=".85"/>
+              <path d="M-68,26 C-22,37 47,33 103,9" fill="none" stroke="#C9C2B5" stroke-width="1.8" opacity=".38"/>
+              <path d="M66,-43 C102,-30 120,-11 118,9 C116,28 103,39 75,45" fill="none" stroke="#CFC7B9" stroke-width="2.4" opacity=".35"/>
+            </g>
+          </g>
+        </defs>
+
+        <!-- ===== Studio backdrop ===== -->
+        <rect width="1200" height="900" fill="url(#cyc)"/>
+        <ellipse cx="560" cy="330" rx="620" ry="470" fill="url(#keylight)"/>
+
+        <!-- Grounding: broad ambient shadow, then a tight contact shadow -->
+        <ellipse cx="605" cy="722" rx="410" ry="58" fill="#6B5535" opacity=".32" filter="url(#soft)"/>
+        <ellipse cx="575" cy="706" rx="315" ry="22" fill="#544027" opacity=".4" filter="url(#soft2)"/>
+
+        <ellipse cx="255" cy="748" rx="120" ry="16" fill="#544027" opacity=".34" filter="url(#soft2)"/>
+        <ellipse cx="930" cy="672" rx="120" ry="18" fill="#544027" opacity=".26" filter="url(#soft2)"/>
+
+        <!-- Floor reflection -->
+        <g mask="url(#reflMask)" filter="url(#soft3)">
+          <use href="#bedArt" transform="translate(0,1406) scale(1,-1) translate(74,80) scale(0.875)"/>
+        </g>
+
+        <!-- ===== Puffy Lux Hybrid ===== -->
+        <use href="#bedArt" transform="translate(74,80) scale(0.875)"/>
+
+        <!-- Photographic grain + ambient vignette -->
+        <rect width="1200" height="900" filter="url(#grain)" opacity=".045" style="mix-blend-mode:multiply"/>
+        <rect width="1200" height="900" fill="url(#vig)"/>
+      </svg>
+    </div>
+
+    <div class="stage-copy">
+      <div>
+        <p class="kicker">The award-winning<br>luxury hybrid, <em>built in eight layers.</em></p>
+        <ul class="awards">
+          <li class="award">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D8B45A" stroke-width="1.6" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="9" r="6"/><path d="M8.5 14.2 7 22l5-2.6L17 22l-1.5-7.8"/>
+            </svg>
+            <span>
+              <span class="award-src">Healthline</span>
+              <span class="award-txt">Best Mattresses for Side Sleepers 2025</span>
+            </span>
+          </li>
+          <li class="award">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D8B45A" stroke-width="1.6" aria-hidden="true" focusable="false">
+              <path d="M12 2 3 6v6c0 5 3.8 8.6 9 10 5.2-1.4 9-5 9-10V6l-9-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>
+            </svg>
+            <span>
+              <span class="award-src">Sleep Doctor</span>
+              <span class="award-txt">Best Hybrid for Pressure Relief 2025</span>
+            </span>
+          </li>
+          <li class="award">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D8B45A" stroke-width="1.6" aria-hidden="true" focusable="false">
+              <path d="M5 20h14M7 20V9l5-5 5 5v11"/><path d="M12 4V2"/>
+            </svg>
+            <span>
+              <span class="award-src">Best Mattress Online</span>
+              <span class="award-txt">Best Luxury Mattress 2026</span>
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <dl class="spec-chip">
+        <div><dt>Profile</dt><dd>12&Prime;</dd></div>
+        <div><dt>Construction</dt><dd>8 layers</dd></div>
+        <div><dt>Feel</dt><dd>Medium&#8209;plush</dd></div>
+        <div><dt>Support</dt><dd>Contour&#8209;Adapt&trade; coils</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ---- 3b · Purchase panel ---- -->
+  <section class="buy" id="buy-panel" aria-labelledby="product-title">
+    <div class="buy-inner">
+
+      <div>
+        <p class="eyebrow">Hybrid &middot; Assembled in the USA</p>
+        <h1 id="product-title">Puffy <span class="lux">Lux</span> Hybrid</h1>
+        <p class="deck">
+          Eight layers of cloud-soft comfort over individually wrapped
+          <strong>Contour-Adapt&trade; coils</strong> — pressure relief that feels plush,
+          on a support core that keeps your spine level.
+        </p>
+      </div>
+
+      <p class="rating">
+        <span class="stars" aria-hidden="true">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="#7A5F30" aria-hidden="true" focusable="false"><path d="m10 1.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.1 2.7 1-5.8L1.7 7.7l5.8-.8L10 1.6z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="#7A5F30" aria-hidden="true" focusable="false"><path d="m10 1.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.1 2.7 1-5.8L1.7 7.7l5.8-.8L10 1.6z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="#7A5F30" aria-hidden="true" focusable="false"><path d="m10 1.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.1 2.7 1-5.8L1.7 7.7l5.8-.8L10 1.6z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="#7A5F30" aria-hidden="true" focusable="false"><path d="m10 1.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.1 2.7 1-5.8L1.7 7.7l5.8-.8L10 1.6z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="#7A5F30" aria-hidden="true" focusable="false"><path d="m10 1.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.1 2.7 1-5.8L1.7 7.7l5.8-.8L10 1.6z"/></svg>
+        </span>
+        <span class="rating-score">4.9</span>
+        <a class="rating-link" href="#">based on 13,500+ Puffy mattress reviews</a>
+      </p>
+
+      <hr class="hr" />
+
+      <ul class="proof">
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A5F30" stroke-width="1.6" aria-hidden="true" focusable="false">
+            <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.8 2.8M15.2 15.2 18 18M18 6l-2.8 2.8M8.8 15.2 6 18"/>
+            <circle cx="12" cy="12" r="3.4"/>
+          </svg>
+          <p style="margin:0"><strong>Cooling Cloud&trade; gel memory foam</strong><br>
+            <span>Draws heat away from pressure points so the plush top never sleeps hot.</span></p>
+        </li>
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A5F30" stroke-width="1.6" aria-hidden="true" focusable="false">
+            <path d="M3 8h18M3 16h18"/><path d="M7 8v8M12 8v8M17 8v8"/><path d="M3 5h18M3 19h18" opacity=".5"/>
+          </svg>
+          <p style="margin:0"><strong>6&Prime; of individually wrapped coils</strong><br>
+            <span>Each coil moves on its own — near-total motion isolation on a shared bed.</span></p>
+        </li>
+      </ul>
+
+      <hr class="hr" />
+
+      <!-- Size -->
+      <div>
+        <div class="field-head">
+          <span class="field-label" id="size-label">Choose your size
+            <span class="dims" id="size-dims">76&Prime; &times; 80&Prime; &times; 12&Prime;</span>
+          </span>
+          <a class="field-link" href="#">Size guide</a>
+        </div>
+        <fieldset class="sizes">
+          <legend class="visually-hidden">Choose your size</legend>
+          <span class="size"><input type="radio" id="s-twin"  name="size" value="twin"  data-price="949"  data-was="2299" data-dims="38&Prime; × 75&Prime; × 12&Prime;"><label for="s-twin">Twin</label></span>
+          <span class="size"><input type="radio" id="s-txl"   name="size" value="txl"   data-price="1049" data-was="2399" data-dims="38&Prime; × 80&Prime; × 12&Prime;"><label for="s-txl">Twin XL</label></span>
+          <span class="size"><input type="radio" id="s-full"  name="size" value="full"  data-price="1349" data-was="2699" data-dims="54&Prime; × 75&Prime; × 12&Prime;"><label for="s-full">Full</label></span>
+          <span class="size"><input type="radio" id="s-queen" name="size" value="queen" data-price="1549" data-was="2899" data-dims="60&Prime; × 80&Prime; × 12&Prime;"><label for="s-queen">Queen</label></span>
+          <span class="size"><input type="radio" id="s-king"  name="size" value="king"  data-price="1749" data-was="3099" data-dims="76&Prime; × 80&Prime; × 12&Prime;" checked><label for="s-king">King</label></span>
+          <span class="size"><input type="radio" id="s-cal"   name="size" value="cal"   data-price="1749" data-was="3099" data-dims="72&Prime; × 84&Prime; × 12&Prime;"><label for="s-cal">Cal King</label></span>
+          <span class="size"><input type="radio" id="s-shq"   name="size" value="shq"   data-price="1849" data-was="3199" data-dims="60&Prime; × 80&Prime; × 12&Prime;"><label for="s-shq">Split Head Queen</label></span>
+          <span class="size"><input type="radio" id="s-sk"    name="size" value="sk"    data-price="2249" data-was="3599" data-dims="76&Prime; × 80&Prime; × 12&Prime;"><label for="s-sk">Split King</label></span>
+        </fieldset>
+      </div>
+
+      <!-- Price -->
+      <div class="price-card">
+        <span class="price-flag">Summer Sale</span>
+        <p class="price-was">Total value <s id="price-was">$3,099</s> &mdash; includes a $315 Signature Pillow</p>
+        <p class="price-now">
+          <span class="price-amt" id="price-now">$1,749</span>
+          <span class="price-code">with code <b>SUMMER</b></span>
+        </p>
+        <span class="price-save">You save $1,350</span>
+        <p class="price-fin">or <b id="price-mo">$85</b>/mo for 20 months at <b>0% APR</b> with Affirm. <a href="#" style="color:var(--brass);font-weight:600">See if you qualify</a></p>
+      </div>
+
+      <!-- Commit -->
+      <div>
+        <button class="cta" type="button">
+          Add to Cart <span class="cta-sub">· Free $315 pillow included</span>
+        </button>
+
+        <ul class="assure">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14684F" stroke-width="2.2" aria-hidden="true" focusable="false"><path d="m4 12.5 5 5L20 6.5"/></svg>
+            365-night sleep trial
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14684F" stroke-width="2.2" aria-hidden="true" focusable="false"><path d="m4 12.5 5 5L20 6.5"/></svg>
+            Free shipping &amp; returns
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14684F" stroke-width="2.2" aria-hidden="true" focusable="false"><path d="m4 12.5 5 5L20 6.5"/></svg>
+            Lifetime warranty
+          </li>
+        </ul>
+        <p class="delivery">Ships free in 2&ndash;5 business days. Don&rsquo;t love it? We arrange the return and refund you in full.</p>
+      </div>
+
+      <!-- Upgrade offered AFTER the primary path, never before it -->
+      <a class="upsell" href="#">
+        <svg class="upsell-thumb" width="56" height="38" viewBox="0 0 56 38" aria-hidden="true" focusable="false">
+          <rect width="56" height="38" rx="2" fill="#EFE9DF"/>
+          <ellipse cx="29" cy="28" rx="21" ry="3.4" fill="#8A7A5E" opacity=".35"/>
+          <polygon points="7,22 39,18.5 49,12 17,14.6" fill="#FCFBF9"/>
+          <polygon points="7,22 39,18.5 39,21 7,24.5" fill="#EDE9E2"/>
+          <polygon points="39,18.5 49,12 49,14.4 39,21" fill="#D6D1C8"/>
+          <polygon points="7,24.5 39,21 39,25.5 7,29" fill="#3C434E"/>
+          <polygon points="39,21 49,14.4 49,18.6 39,25.5" fill="#252B34"/>
+        </svg>
+        <span class="upsell-txt">
+          <b>Want it even plusher? Puffy Royal Hybrid</b>
+          10 layers &middot; ultra-plush &middot; 5-zoned support foam &amp; coils
+        </span>
+        <span class="upsell-cta" aria-hidden="true">+$1,000 &rsaquo;</span>
+        <span class="visually-hidden">Upgrade to Puffy Royal Hybrid for one thousand dollars more</span>
+      </a>
+
+    </div>
+  </section>
+</main>
+
+<script>
+/* Size → price / dimensions. In production these come from the
+   product feed; the data-* attributes are the integration seam. */
+(function () {
+  var fmt = function (n) { return '$' + n.toLocaleString('en-US'); };
+  var now  = document.getElementById('price-now');
+  var was  = document.getElementById('price-was');
+  var mo   = document.getElementById('price-mo');
+  var dims = document.getElementById('size-dims');
+
+  document.querySelectorAll('input[name="size"]').forEach(function (input) {
+    input.addEventListener('change', function () {
+      if (!input.checked) return;
+      var price = parseInt(input.dataset.price, 10);
+      now.textContent  = fmt(price);
+      was.textContent  = fmt(parseInt(input.dataset.was, 10));
+      mo.textContent   = fmt(Math.round(price / 20));
+      dims.innerHTML   = input.dataset.dims;
+    });
+  });
+})();
+</script>
+</body>
+</html>
