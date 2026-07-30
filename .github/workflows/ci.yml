@@ -55,6 +55,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # @prisma/client ships as a stub that re-exports `.prisma/client`, which
+      # only contains the generated models and enums after `prisma generate`.
+      # Without this step the seed fails on `import { Role } from
+      # "@prisma/client"`, and nothing else in the pipeline generates it before
+      # the seed runs.
+      - name: Prisma generate
+        run: pnpm --filter @founderos/db exec prisma generate
+
       - name: Prisma validate
         run: pnpm --filter @founderos/db exec prisma validate
 
